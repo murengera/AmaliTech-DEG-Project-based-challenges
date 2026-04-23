@@ -1,0 +1,100 @@
+name: Deploy API
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    # Run npm test. If tests fail, the pipeline stops. Nothing gets deployed.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      # Install dependencies and run tests in the 'app' directory
+      - name: Install dependencies and Run tests
+        run: |
+          cd app
+          npm ci
+          npm test
+
+  build-and-push:
+    # Build the Docker image and tag it with the Git commit SHA, then push to GHCR.
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Log in to GitHub Container Registry using the automatic GITHUB_TOKEN
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract metadata to create tags like 'sha-<COMMIT_ID>'
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long
+
+      # Build the image from root context (using the Dockerfile in root) and push
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    # Pull the new image on the EC2 server and restart the container.
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      # SSH into the EC2 instance and run deployment commands
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Log in to GHCR on the EC2 server
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Pull the newly built image tagged with the commit SHA
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+            
+            # Stop and remove the existing container if it exists
+            docker stop kora-api || true
+            docker rm kora-api || true
+            
+            # Run the new container, mapping host port 3000 and passing internal PORT
+            docker run -d \
+              --name kora-api \
+              -p 3000:3000 \
+              -e PORT=3000 \
+              --restart always \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}

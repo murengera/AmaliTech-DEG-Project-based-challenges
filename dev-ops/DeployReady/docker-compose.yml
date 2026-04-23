@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kora-analytics-api:latest
+    ports:
+      - "3000:${PORT}"
+    env_file:
+      - .env
+    # The PORT variable is also passed explicitly to ensure the container uses it
+    environment:
+      - PORT=${PORT}
