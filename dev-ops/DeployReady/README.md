@@ -1,9 +1,9 @@
 # **Kora Analytics API — DevOps Implementation**
 
-![Project Banner](https://img.shields.io/badge/Status-Deployment%20Ready-brightgreen?style=for-the-badge)
+<!-- ![Project Banner](https://img.shields.io/badge/Status-Deployment%20Ready-brightgreen?style=for-the-badge)
 ![AWS](https://img.shields.io/badge/AWS-EC2-orange?style=for-the-badge&logo=amazon-aws)
 ![Docker](https://img.shields.io/badge/Docker-Containerized-blue?style=for-the-badge&logo=docker)
-![GitHub Actions](https://img.shields.io/badge/CI/CD-Automated-black?style=for-the-badge&logo=github-actions)
+![GitHub Actions](https://img.shields.io/badge/CI/CD-Automated-black?style=for-the-badge&logo=github-actions) -->
 
 This repository contains the end-to-end DevOps transformation for the Kora Analytics Node.js API. The project bridges the gap between manual deployments and a modern, automated, and monitored infrastructure-as-code approach.
 
