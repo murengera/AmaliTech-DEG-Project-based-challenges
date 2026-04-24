@@ -7,7 +7,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # MANUALLY FIXED: Must be all lowercase for Docker to accept it
   IMAGE_NAME: murengera/amalitech-deg-project-based-challenges
 
 jobs:
@@ -58,7 +57,6 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          # Context points to the folder containing your Dockerfile
           context: dev-ops/DeployReady/
           push: true
           tags: ${{ steps.meta.outputs.tags }}
