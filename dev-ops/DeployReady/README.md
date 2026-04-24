@@ -1,140 +1,116 @@
-# DeployReady
+# **Kora Analytics API — DevOps Implementation**
 
-This challenge is designed to test your understanding of core DevOps practices: containerisation, automated pipelines, and cloud deployment.
+![Project Banner](https://img.shields.io/badge/Status-Deployment%20Ready-brightgreen?style=for-the-badge)
+![AWS](https://img.shields.io/badge/AWS-EC2-orange?style=for-the-badge&logo=amazon-aws)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue?style=for-the-badge&logo=docker)
+![GitHub Actions](https://img.shields.io/badge/CI/CD-Automated-black?style=for-the-badge&logo=github-actions)
 
----
-
-## 1. Business Context
-
-**Client:** Kora Analytics
-**Industry:** SaaS — Data dashboards for logistics companies
-
-### The Problem
-
-Every time the Kora team wants to deploy a new version of their app, a developer manually SSHs into the server, pulls the code, and restarts the process by hand. There are no automated tests before a release and no way to tell if a deploy broke something until a customer complains.
-
-### Your Role
-
-You are joining as their first DevOps engineer. The application code already works — your job is to **containerise it, automate the delivery pipeline, and get it running on AWS**.
+This repository contains the end-to-end DevOps transformation for the Kora Analytics Node.js API. The project bridges the gap between manual deployments and a modern, automated, and monitored infrastructure-as-code approach.
 
 ---
 
-## 2. The Application
+## **1. Architecture Overview**
 
-A simple Node.js API is provided in the [`app/`](./app/) directory. It has three endpoints:
+The system is designed for high reliability and security, utilizing a container-first strategy and automated delivery.
 
-| Method | Route      | Description                            |
-| ------ | ---------- | -------------------------------------- |
-| GET    | `/health`  | Returns `{ "status": "ok" }`           |
-| GET    | `/metrics` | Returns uptime and memory usage        |
-| POST   | `/data`    | Accepts a JSON body and echoes it back |
+```mermaid
+graph TD
+    subgraph Local_Dev [Local Development]
+        A[Developer] -->|Git Push| B(GitHub Repository)
+    end
 
-Run it locally:
+    subgraph CI_CD [GitHub Actions Pipeline]
+        B --> C{CI Pipeline}
+        C -->|1. Test| D[npm test]
+        D -->|2. Build| E[Docker Build]
+        E -->|3. Push| F[GitHub Container Registry]
+        F -->|4. Deploy| G[SSH to AWS EC2]
+    end
 
-```bash
-cd app
-npm install
-npm start
+    subgraph AWS_Cloud [AWS Infrastructure]
+        G --> H[EC2 Instance]
+        H --> I[Docker Container]
+        J[CloudWatch Canary] -->|Health Check| I
+        K[Users] -->|Port 80| I
+    end
 ```
 
-Do not change the application logic. Your work is everything around it.
+### **Core Components**
+*   **Application**: A lightweight Node.js API serving logistics metadata.
+*   **Containerization**: Docker-based environment for environmental parity.
+*   **Orchestration**: Docker Compose for local multi-service simulation.
+*   **CI/CD**: GitHub Actions for seamless automated deployment.
+*   **Monitoring**: AWS CloudWatch Synthetics for proactive health tracking.
 
 ---
 
-## 3. The Assignment
+## **2. Setup & Installation**
 
-### Part 1 — Containerise the App
+### **Local Development**
+To run the API locally using Docker, ensure you have Docker and Docker Compose installed.
 
-**Deliverables:** A `Dockerfile` and a `docker-compose.yml` in the root of your repository.
+1.  **Clone the Repository:**
+    ```bash
+    git clone https://github.com/murengera/AmaliTech-DEG-Project-based-challenges.git
+    cd AmaliTech-DEG-Project-based-challenges/dev-ops/DeployReady
+    ```
 
-**Dockerfile requirements:**
+2.  **Configure Environment:**
+    ```bash
+    cp .env.example .env
+    # Edit .env and set your desired PORT (e.g., 3000)
+    ```
 
-- The app must run inside a Docker container.
-- The container must accept a `PORT` environment variable.
-- The container must **not** run as the `root` user.
+3.  **Start the Application:**
+    ```bash
+    docker compose up --build
+    ```
+    The API will be available at `http://localhost:3000`.
 
-**Docker Compose requirements:**
-
-- Define the app as a service in `docker-compose.yml`.
-- Map port `3000` on the host to the container.
-- Pass the `PORT` variable via an `.env` file (include a `.env.example` with placeholder values).
-- Running the following must start a working API:
-  ```bash
-  docker compose up --build
-  ```
-
----
-
-### Part 2 — Automate the Pipeline
-
-**Deliverable:** A `.github/workflows/deploy.yml` GitHub Actions workflow.
-
-The pipeline must run these steps **in order** on every push to `main`:
-
-1. **Test** — Run `npm test`. If tests fail, the pipeline stops. Nothing gets deployed.
-2. **Build** — Build the Docker image and tag it with the Git commit SHA.
-3. **Push** — Push the image to a container registry (GitHub Container Registry or AWS ECR).
-4. **Deploy** — Pull the new image on the EC2 server and restart the container.
-
-Additional requirements:
-
-- Secrets (SSH key, registry token) must be stored as **GitHub repository secrets** — never in the code.
-- Add a short comment above each step in the YAML explaining what it does.
+### **Cloud Deployment**
+The application is automatically deployed to AWS on every push to the `main` branch. For manual verification or logging instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ---
 
-### Part 3 — Deploy to AWS
+## **3. Key Decisions & Rationale**
 
-**Deliverable:** A running service on AWS and a short `DEPLOYMENT.md` explaining your setup.
+### **Security First**
+*   **Non-Root User**: The `Dockerfile` implements a `node` user to run the application, adhering to the principle of least privilege within the container.
+*   **SSH Hardening**: Port 22 is strictly restricted to the administrative IP address, effectively nullifying brute-force attack vectors on the host level.
+*   **Secret Management**: Zero hardcoded credentials. All deployment keys and registry tokens are managed via encrypted GitHub Secrets.
 
-Provision the following manually (via the AWS Console is fine):
+### **Automated Reliability**
+*   **CI-Before-CD**: A mandatory testing phase runs before any build. This ensures that broken code never reaches the registry and minimizes downtime.
+*   **Immutable Tags**: Images are pushed to GHCR with the commit SHA as a tag, enabling precise rollbacks and audit trails.
 
-- An **EC2 instance** (`t2.micro`, Amazon Linux 2023) with Docker installed.
-- A **Security Group** that allows:
-  - HTTP on port 80 from anywhere
-  - SSH on port 22 **from your IP only** — not `0.0.0.0/0`
-- An **IAM user or role** for the pipeline with only the permissions it needs.
-
-At submission time, `GET http://<your-ec2-ip>/health` must return `{ "status": "ok" }`.
-
-Document in `DEPLOYMENT.md`:
-
-- How you set up the EC2 instance
-- How you installed Docker and pulled your image
-- How to check if the container is running
-- How to view the application logs
+### **Proactive Monitoring (Bonus Implementation)**
+Instead of waiting for a crash report, I implemented an **AWS CloudWatch Synthetics Canary**. 
+*   **Heartbeat Monitoring**: The canary visits the `/health` endpoint every 5 minutes.
+*   **Automated Alarms**: A CloudWatch Alarm triggers immediately if the success rate falls below 100%, allowing for rapid response before users are affected.
 
 ---
 
-## 4. Bonus (Optional)
+## **4. API Documentation**
 
-Pick **one** of the following if you want to go further:
+The API provides the following endpoints:
 
-- **Use Terraform** to provision the EC2 instance and Security Group instead of the console.
-- **Add a CloudWatch alarm** that triggers if `/health` stops responding.
-- **Implement a rollback step** in the pipeline that re-deploys the previous image if the health check fails after deploy.
-
-Describe what you added and why in your `DEPLOYMENT.md`.
-
----
-
-## 5. Submission Instructions
-
-1. **Fork** this repository.
-2. Complete all three parts in your fork.
-3. **Replace this README** with your own documentation (architecture overview, setup steps, decisions made).
-4. Submit your repo link via the [online form](https://forms.cloud.microsoft/e/f3FF83LVz3).
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/health` | `GET` | Returns 200 OK and system status. |
+| `/metrics` | `GET` | Returns real-time uptime and memory usage. |
+| `/data` | `POST` | Accepts and echoes back JSON payloads for integration testing. |
 
 ---
 
-## ⚠️ Pre-Submission Checklist
-
-- [ ] `docker compose up --build` starts the app locally
-- [ ] A `.env.example` file is committed (the real `.env` is not)
-- [ ] At least one successful pipeline run is visible in the GitHub Actions tab
-- [ ] `GET /health` on your EC2 public IP returns 200
-- [ ] No secrets or `.pem` files committed to the repository
-- [ ] SSH port 22 is **not** open to `0.0.0.0/0`
-- [ ] `DEPLOYMENT.md` is present and covers the four points in Part 3
-- [ ] This README has been replaced with your own documentation
-- [ ] Commit history shows progress over time (not a single upload commit)
+## **5. Project Structure**
+```text
+.
+├── .github/workflows/deploy.yml  # CI/CD Pipeline Definition
+├── app/                          # Node.js Source Code
+├── dev-ops/DeployReady/
+│   ├── DEPLOYMENT.md             # Technical infrastructure notes
+│   ├── Dockerfile                # Production container config
+│   ├── docker-compose.yml        # Local development config
+│   └── screenshots/              # Evidence of monitoring & security
+└── README.md                     # Project documentation
+```
