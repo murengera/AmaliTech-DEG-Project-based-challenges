@@ -13,6 +13,12 @@ This repository contains the end-to-end DevOps transformation for the Kora Analy
 
 The system is designed for high reliability and security, utilizing a container-first strategy and automated delivery.
 
+### **Visual Architecture Diagram**
+![Project Architecture](./screenshots/architecture-diagram.png)
+
+> **[🔗 Direct Link to Architecture Diagram](https://github.com/murengera/AmaliTech-DEG-Project-based-challenges/blob/main/dev-ops/DeployReady/screenshots/architecture-diagram.png)**
+
+### **System Workflow**
 ```mermaid
 graph TD
     subgraph Local_Dev [Local Development]
