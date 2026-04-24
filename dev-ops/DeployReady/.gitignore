@@ -8,3 +8,5 @@ node_modules/
 .terraform.lock.hcl
 *.pem
 *.key
+.DS_Store
+
