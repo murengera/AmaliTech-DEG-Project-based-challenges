@@ -1,0 +1,22 @@
+# === OS Generated ===
+.DS_Store
+Thumbs.db
+
+# === Dependencies ===
+node_modules/
+
+# === Environment ===
+.env
+!.env.example
+
+# === Terraform ===
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+*.tfvars
+!example.tfvars
+
+# === Secrets ===
+*.pem
+*.key
