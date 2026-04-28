@@ -11,7 +11,8 @@ The system is designed for high reliability and security, utilizing a container-
 ### **Visual Architecture Diagram**
 ![Project Architecture](./screenshots/architecture-diagram.png)
 
-> **[🔗 Direct Link to Architecture Diagram](https://github.com/murengera/AmaliTech-DEG-Project-based-challenges/blob/main/dev-ops/DeployReady/screenshots/architecture-diagram.png)**
+> **[🔗 View Professional Architecture Diagram (Google Drive)](https://drive.google.com/file/d/1IB5XE4iTm7CiY0ka2sa_Bw2UDklgSl62/view?usp=sharing)**
+> **[🔗 GitHub Repository Source](https://github.com/murengera/AmaliTech-DEG-Project-based-challenges/blob/main/dev-ops/DeployReady/screenshots/architecture-diagram.png)**
 
 ### **System Workflow**
 ```mermaid
@@ -189,7 +190,7 @@ All evidence screenshots are stored in the [`screenshots/`](./screenshots/) dire
 | [Security Timeout Proof](./screenshots/security-proof-timeout.png) | Intentional timeout confirms firewall is active |
 | [CloudWatch Canary Graph](./screenshots/canary-graph.png) | Health endpoint monitored every 5 minutes |
 | [CloudWatch Alarm OK](./screenshots/alarm-ok.png) | Alarm is configured and currently passing |
-| [Architecture Diagram](./screenshots/architecture-diagram.png) | Full system design visualization |
+| [Architecture Diagram](./screenshots/architecture-diagram.png) | [Full System Design (Google Drive)](https://drive.google.com/file/d/1IB5XE4iTm7CiY0ka2sa_Bw2UDklgSl62/view?usp=sharing) |
 
 ---
 
