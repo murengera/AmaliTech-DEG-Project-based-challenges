@@ -80,10 +80,44 @@ docker pull ghcr.io/murengera/amalitech-deg-project-based-challenges:latest
 docker run -d --name kora-api -p 80:3000 --restart always <image_name>
 ```
 
-### **Logs & Debugging**
-To monitor application health and traffic in real-time:
+### **Operational Commands (Monitoring & Logs)**
+Once the container is running, use these commands to monitor health and performance:
+
+#### **Check if Docker Container is Running**
 ```bash
+# List all running containers
+docker ps
+
+# List all containers (including stopped ones)
+docker ps -a
+```
+
+#### **Monitor Application Logs**
+```bash
+# Follow logs in real-time
 docker logs -f kora-api
+
+# View the last 100 lines of logs
+docker logs --tail 100 kora-api
+```
+
+#### **Check Container Health Status**
+Since the container has a built-in healthcheck, you can inspect its status:
+```bash
+# View detailed health status (JSON)
+docker inspect --format='{{json .State.Health}}' kora-api
+
+# Quick check of the container state and health
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+```
+
+#### **Resource Usage & Processes**
+```bash
+# View live resource usage (CPU, Memory, I/O)
+docker stats kora-api
+
+# List processes running inside the container
+docker top kora-api
 ```
 
 ---
