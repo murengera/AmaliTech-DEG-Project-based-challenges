@@ -48,7 +48,7 @@ graph TD
 
 ## **2. What Was Accomplished**
 
-Below is a summary of every task completed for this project, organized by DevOps domain.
+Below is a summary of every task completed for this project.
 
 ### **Part 1 — Containerization**
 | Task | Details |

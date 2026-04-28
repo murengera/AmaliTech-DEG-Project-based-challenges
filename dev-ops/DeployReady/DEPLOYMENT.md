@@ -44,7 +44,25 @@ By restricting SSH (Port 22) to a specific IP, the automated deployment pipeline
 
 ## **3. Docker Operations**
 
-### **Docker Environment Setup**
+### **Docker Installation (Amazon Linux 2023)**
+To set up the environment, I installed and configured Docker using the following commands:
+
+```bash
+# Update system packages
+sudo dnf update -y
+
+# Install Docker
+sudo dnf install -y docker
+
+# Start and enable Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add ec2-user to docker group (Log out and back in for changes to take effect)
+sudo usermod -aG docker ec2-user
+```
+
+### **Docker Environment Verification**
 The host is configured with Docker 25.x. Permissions are managed to allow the `ec2-user` to manage containers without root access.
 
 ```bash
